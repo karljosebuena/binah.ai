@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { IFCVValidator } from '../../domain/services/fcv-validator.interface';
 import { IFCVProcessor } from '../../domain/services/fcv-processor.interface';
 import * as crypto from 'crypto';
+import { InvalidSampleException, ProcessingException, StorageException } from '../../shared/exceptions/domain.exceptions';
 import { ConfidenceScore } from '../../domain/value-objects/confidence-score.vo';
 import { ISampleRepository } from '../interfaces/sample.repository.interface';
 import { ITestResultRepository } from '../interfaces/test-result.repository.interface';
@@ -41,7 +42,7 @@ export class SampleProcessingService {
       // Validate file format
       const isValidFormat = await this.fcvValidator.validateFileFormat(filePath);
       if (!isValidFormat) {
-        throw new Error('Invalid file format');
+        throw new InvalidSampleException('Invalid file format');
       }
 
       // Create and save sample
@@ -57,7 +58,7 @@ export class SampleProcessingService {
       try {
         await this.sampleRepository.save(sample);
       } catch (error) {
-        throw new Error(`Failed to save sample: ${error.message}`);
+        throw new ProcessingException(`Failed to save sample: ${error.message}`);
       }
 
       // Process each test type
@@ -77,7 +78,7 @@ export class SampleProcessingService {
         await this.storageService.deleteFile(filePath);
       }
       
-      throw new Error(`Sample upload failed: ${error.message}`);
+      throw new StorageException(`Sample upload failed: ${error.message}`);
     }
   }
 
