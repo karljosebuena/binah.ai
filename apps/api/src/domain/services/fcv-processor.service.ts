@@ -11,22 +11,31 @@ export class FCVProcessorService implements IFCVProcessor {
     confidenceScore: ConfidenceScore;
     status: ProcessingStatusVO;
   }> {
-    try {
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+    // Simulate processing delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Generate random confidence score between 0 and 1
-      const randomScore = Math.random();
-      const confidenceScore = ConfidenceScore.create(randomScore);
-      
+    // Random outcome generator (0-1)
+    const outcome = Math.random();
+
+    // 70% chance of success, 15% error, 15% failure
+    if (outcome < 0.15) {
+      // Simulate processing failure
       return {
-        confidenceScore,
-        status: new ProcessingStatusVO(ProcessingStatus.COMPLETE_SUCCESS),
+        confidenceScore: ConfidenceScore.create(0),
+        status: new ProcessingStatusVO(ProcessingStatus.COMPLETE_FAILURE),
       };
-    } catch (error) {
+    } else if (outcome < 0.30) {
+      // Simulate processing error
       return {
         confidenceScore: ConfidenceScore.create(0),
         status: new ProcessingStatusVO(ProcessingStatus.COMPLETE_ERROR),
+      };
+    } else {
+      // Generate random confidence score between 0 and 1
+      const randomScore = Math.random();
+      return {
+        confidenceScore: ConfidenceScore.create(randomScore),
+        status: new ProcessingStatusVO(ProcessingStatus.COMPLETE_SUCCESS),
       };
     }
   }
